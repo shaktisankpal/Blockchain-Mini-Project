@@ -1,111 +1,68 @@
-# Electronic Health Record Blockchain Based Platfrom - Project
+# Running the test network
 
-## Tech stack
+You can use the `./network.sh` script to stand up a simple Fabric test network. The test network has two peer organizations with one peer each and a single node raft ordering service. You can also use the `./network.sh` script to create channels and deploy chaincode. For more information, see [Using the Fabric test network](https://hyperledger-fabric.readthedocs.io/en/latest/test_network.html). The test network is being introduced in Fabric v2.0 as the long term replacement for the `first-network` sample.
 
-    - Hyperledger Fabric blockchain (Node SDK JavaScript)
-    - Node.js
-    - Next.js
-    - IPFS
+If you are planning to run the test network with consensus type BFT then please pass `-bft` flag as input to the `network.sh` script when creating the channel. This sample also supports the use of consensus type BFT and CA together.
+That is to create a network use:
+```bash
+./network.sh up -bft
+```
 
-<!-- ADD github access 
+To create a channel use:
 
-$ eval "$(ssh-agent -s)"
-$ ssh-add ~/ssh/github -->
+```bash
+./network.sh createChannel -bft
+```
 
-# Steps to setup project
+To restart a running network use:
 
-## Download fabric binarys and fabric sample repo
+```bash
+./network.sh restart -bft
+```
 
-    $ ./install-fabric.sh 
+Note that running the createChannel command will start the network, if it is not already running.
 
-## To test network 
+Before you can deploy the test network, you need to follow the instructions to [Install the Samples, Binaries and Docker Images](https://hyperledger-fabric.readthedocs.io/en/latest/install.html) in the Hyperledger Fabric documentation.
 
-    $ cd fabric-samples/test-network
-    $ ./network.sh up
+## Using the Peer commands
 
-    $ docker ps    // to check running container or check in docker desktop
-    
-    $ ./network.sh down     // to down network
+The `setOrgEnv.sh` script can be used to set up the environment variables for the organizations, this will help to be able to use the `peer` commands directly.
 
-## to run network with ca and create mychannel 
+First, ensure that the peer binaries are on your path, and the Fabric Config path is set assuming that you're in the `test-network` directory.
 
-    $ cd fabric-samples/test-network
-    
-    Create network with ca cert: 
-    
-    $ ./network.sh up createChannel -ca -s couchdb
-    
-### Chain code deployment command
+```bash
+ export PATH=$PATH:$(realpath ../bin)
+ export FABRIC_CFG_PATH=$(realpath ../config)
+```
 
-- Deploy chain code
-	    
-    $ ./network.sh deployCC -ccn ehrChainCode -ccp ../asset-transfer-basic/chaincode-javascript/ -ccl javascript
+You can then set up the environment variables for each organization. The `./setOrgEnv.sh` command is designed to be run as follows.
 
-    *Down Network - only if you want to stop network or close system
-	
-    $ ./network.sh down
+```bash
+export $(./setOrgEnv.sh Org2 | xargs)
+```
 
-### Register Admin
+(Note bash v4 is required for the scripts.)
 
-    $ cd server-node-sdk/
-    $ node cert-script/registerOrg1Admin.js
-    $ node cert-script/registerOrg2Admin.js
+You will now be able to run the `peer` commands in the context of Org2. If a different command prompt, you can run the same command with Org1 instead.
+The `setOrgEnv` script outputs a series of `<name>=<value>` strings. These can then be fed into the export command for your current shell.
 
-### onboard script
-    
-    $ node cert-script/onboardHospital01.js 
-    $ node cert-script/onboardDoctor.js
+## Chaincode-as-a-service
 
-    $ node cert-script/onboardInsuranceCompany.js 
-    $ node cert-script/onboardInsuranceAgent.js
-
-    *** you can use script to call chaincode and perform read and write opration on blockchain ledger. - optional *** 
-
-### start node server to use api
-
-    $ npm run dev
-
-### API List
-    
-    1. registerPatient - as Patient
-    2. loginPatient - as Patient
-    3. grantAccess - to doctor from Patient
-    4. addRecord - of Patient
-    5. getRecordById - of Patient 
-    6. getAllRecordByPatienId - filter record by patient
-    7. fetchLedger - fetch all transaction only admin can fetch.
-
-## chaincode logic
-
-    - lets first understand the actors in our chaincode
-
-    1. Goverment - network owner
-    2. Hospital - Network orgination 
-    3. Practicing physician / Doctor - member of hospital
-    4. Diagnostics center - org OR peer of hospital
-    5. Pharmacies - Org OR peer of hospital
-    6. Researchers / R&D - org
-    7. Insurance companies - org
-    8. Patient - end user
+To learn more about how to use the improvements to the Chaincode-as-a-service please see this [tutorial](./test-network/../CHAINCODE_AS_A_SERVICE_TUTORIAL.md). It is expected that this will move to augment the tutorial in the [Hyperledger Fabric ReadTheDocs](https://hyperledger-fabric.readthedocs.io/en/release-2.4/cc_service.html)
 
 
-   ## now lets see there read write access
+## Podman
 
-        1. Goverment - network owner - admin access
-        2. Hospital - Network orgination - Read/Write (doctor data)
-        3. Practicing physician/Doctor - Read/Write (Patient data w.r.t to hospital)
-        4. Diagnostics center - Read/Write (Patient records w.r.t to diagnostics center)
-        5. Pharmacies - Read/Write (Patient prescriptions w.r.t to pharma center)
-        6. Researchers / R&D - Read data of hospital conect, pateint based on consent. 
-        7. Insurance companies - Read/Write (Patient claims)
-        8. Patient - Read/Write (All generated patient data)
+*Note - podman support should be considered experimental but the following has been reported to work with podman 4.1.1 on Mac. If you wish to use podman a LinuxVM is recommended.*
 
-  ## object strucutre in db.
+Fabric's `install-fabric.sh` script has been enhanced to support using `podman` to pull down images and tag them rather than docker. The images are the same, just pulled differently. Simply specify the 'podman' argument when running the `install-fabric.sh` script. 
 
-  [ "recordType"="hospital", "createdBy"="hospitalId", data={ name="ABC Hosptial", address="acb location"  } ]
+Similarly, the `network.sh` script has been enhanced so that it can use `podman` and `podman-compose` instead of docker. Just set the environment variable `CONTAINER_CLI` to `podman` before running the `network.sh` script:
 
-  [ "recordType"="physician", "createdBy"="physicianID", data={ name="ABC Hosptial", address="acb location"  } ]
+```bash
+CONTAINER_CLI=podman ./network.sh up
+````
 
-## Steps to setup explorer
+As there is no Docker-Daemon when using podman, only the `./network.sh deployCCAAS` command will work. Following the Chaincode-as-a-service Tutorial above should work. 
 
- 
+
