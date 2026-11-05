@@ -1,52 +1,73 @@
-# Description
+[//]: # (SPDX-License-Identifier: CC-BY-4.0)
 
-This sample provides an environment to display and capture metrics from the test-network in real time. It consists of a docker-compose file that starts a Prometheus and Grafana server setup configured to collect and display metrics for the test network.
+# Hyperledger Fabric Samples
 
-## Requirements
+You can use Fabric samples to get started working with Hyperledger Fabric, explore important Fabric features, and learn how to build applications that can interact with blockchain networks using the Fabric SDKs. To learn more about Hyperledger Fabric, visit the [Fabric documentation](https://hyperledger-fabric.readthedocs.io/en/latest).
 
-This sample has been tested and is recommended to be used on **linux** in order to fully benefit from its capabilities, however it can be deployed and works on MacOS-intel machine as well (some modification to the cadvisor docker image and related queries are required to show docker containers metrics).
-You will need to have installed **docker-compose with version 1.29 or above** (note that this is higher than the v1.14 requirement requested for the test-network).
+Note that this branch contains samples for the latest Fabric release. For older Fabric versions, refer to the corresponding branches:
 
-## How to use
+- [release-2.2](https://github.com/hyperledger/fabric-samples/tree/release-2.2)
+- [release-1.4](https://github.com/hyperledger/fabric-samples/tree/release-1.4)
 
-1. Go to the test-network directory and run bring up the test-network **./network.sh up createChannel**
-2. Bring up the Prometheus/Grafana network in the test-network/prometheus-grafana directory and run **docker-compose up -d**
-3. Log in: type "localhost:3000" on your web browser -> username="admin", password="admin" -> set a new password
-4. Browse dashboard and analyse results
-   - The default dashboard "HLF Performances Review" can be found and displayed by hovering over the dashboard menu and clicking on the browse button.
-   ![picture alt]("https://user-images.githubusercontent.com/86831094/149115445-5e5f6d95-ecc3-4b46-aadb-5c01148770b3.png "Title is optional")
-   Once opened the dashboard, to display the collected metrics and data, adjust the timeframe on the top right to focus on the latest timespan when the network was up.
-5. Deploy a chaincode (i.e. "./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go"), start using the test-network and use the Grafana dashboard to analyse and assess your network performances.
-Extras: add new queries, modify dashboard & add relevant changes to main repo --> extract json and add it to "Grafana/dashboards/hlf-performances.json".
-Metrics can also be displayed directly from Prometheus by going to "localhost:9090".
+## Getting started with the Fabric samples
 
-## Docker Compose
+To use the Fabric samples, you need to download the Fabric Docker images and the Fabric CLI tools. First, make sure that you have installed all of the [Fabric prerequisites](https://hyperledger-fabric.readthedocs.io/en/latest/prereqs.html). You can then follow the instructions to [Install the Fabric Samples, Binaries, and Docker Images](https://hyperledger-fabric.readthedocs.io/en/latest/install.html) in the Fabric documentation. In addition to downloading the Fabric images and tool binaries, the Fabric samples will also be cloned to your local machine.
 
-Brings up
+## Test network
 
-- a Prometheus server (port 9090) -> pulls metrics from peers, orderer, system(node exporter) and containers(cadvisor)
-- Grafana server (port 3000) -> collects and display data from Prometheus
-- node exporter (port 9100) -> exposes systems metrics
-- cadvisor (port 8080) -> exposes docker containers metrics
+The [Fabric test network](test-network) in the samples repository provides a Docker Compose based test network with two
+Organization peers and an ordering service node. You can use it on your local machine to run the samples listed below.
+You can also use it to deploy and test your own Fabric chaincodes and applications. To get started, see
+the [test network tutorial](https://hyperledger-fabric.readthedocs.io/en/latest/test_network.html).
 
-## Prometheus "configuration file"
+The [Kubernetes Test Network](test-network-k8s) sample builds upon the Compose network, constructing a Fabric
+network with peer, orderer, and CA infrastructure nodes running on Kubernetes.  In addition to providing a sample
+Kubernetes guide, the Kube test network can be used as a platform to author and debug _cloud ready_ Fabric Client
+applications on a development or CI workstation.
 
-### Prometheus.yml
 
-Fabric metrics targets:
+## Asset transfer samples and tutorials
 
-- `peer0.org1.example.com:9444`
-- `peer0.org2.example.com:9445`
-- `orderer.example.com:9443`
+The asset transfer series provides a series of sample smart contracts and applications to demonstrate how to store and transfer assets using Hyperledger Fabric.
+Each sample and associated tutorial in the series demonstrates a different core capability in Hyperledger Fabric. The **Basic** sample provides an introduction on how
+to write smart contracts and how to interact with a Fabric network using the Fabric SDKs. The **Ledger queries**, **Private data**, and **State-based endorsement**
+samples demonstrate these additional capabilities. Finally, the **Secured agreement** sample demonstrates how to bring all the capabilities together to securely
+transfer an asset in a more realistic transfer scenario.
 
-System and docker metrics targets:
+|  **Smart Contract** | **Description** | **Tutorial** | **Smart contract languages** | **Application languages** |
+| -----------|------------------------------|----------|---------|---------|
+| [Basic](asset-transfer-basic) | The Basic sample smart contract that allows you to create and transfer an asset by putting data on the ledger and retrieving it. This sample is recommended for new Fabric users. | [Writing your first application](https://hyperledger-fabric.readthedocs.io/en/latest/write_first_app.html) | Go, JavaScript, TypeScript, Java | Go, TypeScript, Java |
+| [Ledger queries](asset-transfer-ledger-queries) | The ledger queries sample demonstrates range queries and transaction updates using range queries (applicable for both LevelDB and CouchDB state databases), and how to deploy an index with your chaincode to support JSON queries (applicable for CouchDB state database only). | [Using CouchDB](https://hyperledger-fabric.readthedocs.io/en/latest/couchdb_tutorial.html) | Go, JavaScript | Java, JavaScript |
+| [Private data](asset-transfer-private-data) | This sample demonstrates the use of private data collections, how to manage private data collections with the chaincode lifecycle, and how the private data hash can be used to verify private data on the ledger. It also demonstrates how to control asset updates and transfers using client-based ownership and access control. | [Using Private Data](https://hyperledger-fabric.readthedocs.io/en/latest/private_data_tutorial.html) | Go, TypeScript, Java | TypeScript |
+| [State-Based Endorsement](asset-transfer-sbe) | This sample demonstrates how to override the chaincode-level endorsement policy to set endorsement policies at the key-level (data/asset level). | [Using State-based endorsement](https://github.com/hyperledger/fabric-samples/tree/main/asset-transfer-sbe) | Java, TypeScript | JavaScript |
+| [Secured agreement](asset-transfer-secured-agreement) | Smart contract that uses implicit private data collections, state-based endorsement, and organization-based ownership and access control to keep data private and securely transfer an asset with the consent of both the current owner and buyer. | [Secured asset transfer](https://hyperledger-fabric.readthedocs.io/en/latest/secured_asset_transfer/secured_private_asset_transfer_tutorial.html)  | Go | TypeScript |
+| [Events](asset-transfer-events) | The events sample demonstrates how smart contracts can emit events that are read by the applications interacting with the network. | [README](asset-transfer-events/README.md)  | Go, JavaScript, Java | Go, TypeScript, Java |
+| [Attribute-based access control](asset-transfer-abac) | Demonstrates the use of attribute and identity based access control using a simple asset transfer scenario | [README](asset-transfer-abac/README.md)  | Go | _None_ |
 
-- `cadvisor:8080`
-- `node-exporter:9100`
+## Full stack asset transfer guide
 
-Check the state of the connections with targets on http://localhost:9090/targets.
+The [full stack asset transfer guide](full-stack-asset-transfer-guide#readme) workshop demonstrates how a generic asset transfer solution for Hyperledger Fabric can be developed and deployed. This covers chaincode development, client application development, and deployment to a production-like environment.
 
-## Sources
+## Additional samples
 
-[Prometheus docs](https://prometheus.io/docs/introduction/overview/)
-[Grafana docs](https://grafana.com/docs/)
+Additional samples demonstrate various Fabric use cases and application patterns.
+
+|  **Sample** | **Description** | **Documentation** |
+| -------------|------------------------------|------------------|
+| [Off chain data](off_chain_data) | Learn how to use block events to build an off-chain database for reporting and analytics. | [Peer channel-based event services](https://hyperledger-fabric.readthedocs.io/en/latest/peer_event_services.html) |
+| [Token SDK](token-sdk) | Sample REST API around the Hyperledger Labs [Token SDK](https://github.com/hyperledger-labs/fabric-token-sdk) for privacy friendly (zero knowledge proof) UTXO transactions. | [README](token-sdk/README.md) |
+| [Token ERC-20](token-erc-20) | Smart contract demonstrating how to create and transfer fungible tokens using an account-based model. | [README](token-erc-20/README.md) |
+| [Token UTXO](token-utxo) | Smart contract demonstrating how to create and transfer fungible tokens using a UTXO (unspent transaction output) model. | [README](token-utxo/README.md) |
+| [Token ERC-1155](token-erc-1155) | Smart contract demonstrating how to create and transfer multiple tokens (both fungible and non-fungible) using an account based model. | [README](token-erc-1155/README.md) |
+| [Token ERC-721](token-erc-721) | Smart contract demonstrating how to create and transfer non-fungible tokens using an account-based model. | [README](token-erc-721/README.md) |
+| [High throughput](high-throughput) | Learn how you can design your smart contract to avoid transaction collisions in high volume environments. | [README](high-throughput/README.md) |
+| [Simple Auction](auction-simple) | Run an auction where bids are kept private until the auction is closed, after which users can reveal their bid. | [README](auction-simple/README.md) |
+| [Dutch Auction](auction-dutch) | Run an auction in which multiple items of the same type can be sold to more than one buyer. This example also includes the ability to add an auditor organization. | [README](auction-dutch/README.md) |
+
+
+## License <a name="license"></a>
+
+Hyperledger Project source code files are made available under the Apache
+License, Version 2.0 (Apache-2.0), located in the [LICENSE](LICENSE) file.
+Hyperledger Project documentation files are made available under the Creative
+Commons Attribution 4.0 International License (CC-BY-4.0), available at http://creativecommons.org/licenses/by/4.0/.

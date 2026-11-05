@@ -1,52 +1,68 @@
-# Description
+# Running the test network
 
-This sample provides an environment to display and capture metrics from the test-network in real time. It consists of a docker-compose file that starts a Prometheus and Grafana server setup configured to collect and display metrics for the test network.
+You can use the `./network.sh` script to stand up a simple Fabric test network. The test network has two peer organizations with one peer each and a single node raft ordering service. You can also use the `./network.sh` script to create channels and deploy chaincode. For more information, see [Using the Fabric test network](https://hyperledger-fabric.readthedocs.io/en/latest/test_network.html). The test network is being introduced in Fabric v2.0 as the long term replacement for the `first-network` sample.
 
-## Requirements
+If you are planning to run the test network with consensus type BFT then please pass `-bft` flag as input to the `network.sh` script when creating the channel. This sample also supports the use of consensus type BFT and CA together.
+That is to create a network use:
+```bash
+./network.sh up -bft
+```
 
-This sample has been tested and is recommended to be used on **linux** in order to fully benefit from its capabilities, however it can be deployed and works on MacOS-intel machine as well (some modification to the cadvisor docker image and related queries are required to show docker containers metrics).
-You will need to have installed **docker-compose with version 1.29 or above** (note that this is higher than the v1.14 requirement requested for the test-network).
+To create a channel use:
 
-## How to use
+```bash
+./network.sh createChannel -bft
+```
 
-1. Go to the test-network directory and run bring up the test-network **./network.sh up createChannel**
-2. Bring up the Prometheus/Grafana network in the test-network/prometheus-grafana directory and run **docker-compose up -d**
-3. Log in: type "localhost:3000" on your web browser -> username="admin", password="admin" -> set a new password
-4. Browse dashboard and analyse results
-   - The default dashboard "HLF Performances Review" can be found and displayed by hovering over the dashboard menu and clicking on the browse button.
-   ![picture alt]("https://user-images.githubusercontent.com/86831094/149115445-5e5f6d95-ecc3-4b46-aadb-5c01148770b3.png "Title is optional")
-   Once opened the dashboard, to display the collected metrics and data, adjust the timeframe on the top right to focus on the latest timespan when the network was up.
-5. Deploy a chaincode (i.e. "./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go -ccl go"), start using the test-network and use the Grafana dashboard to analyse and assess your network performances.
-Extras: add new queries, modify dashboard & add relevant changes to main repo --> extract json and add it to "Grafana/dashboards/hlf-performances.json".
-Metrics can also be displayed directly from Prometheus by going to "localhost:9090".
+To restart a running network use:
 
-## Docker Compose
+```bash
+./network.sh restart -bft
+```
 
-Brings up
+Note that running the createChannel command will start the network, if it is not already running.
 
-- a Prometheus server (port 9090) -> pulls metrics from peers, orderer, system(node exporter) and containers(cadvisor)
-- Grafana server (port 3000) -> collects and display data from Prometheus
-- node exporter (port 9100) -> exposes systems metrics
-- cadvisor (port 8080) -> exposes docker containers metrics
+Before you can deploy the test network, you need to follow the instructions to [Install the Samples, Binaries and Docker Images](https://hyperledger-fabric.readthedocs.io/en/latest/install.html) in the Hyperledger Fabric documentation.
 
-## Prometheus "configuration file"
+## Using the Peer commands
 
-### Prometheus.yml
+The `setOrgEnv.sh` script can be used to set up the environment variables for the organizations, this will help to be able to use the `peer` commands directly.
 
-Fabric metrics targets:
+First, ensure that the peer binaries are on your path, and the Fabric Config path is set assuming that you're in the `test-network` directory.
 
-- `peer0.org1.example.com:9444`
-- `peer0.org2.example.com:9445`
-- `orderer.example.com:9443`
+```bash
+ export PATH=$PATH:$(realpath ../bin)
+ export FABRIC_CFG_PATH=$(realpath ../config)
+```
 
-System and docker metrics targets:
+You can then set up the environment variables for each organization. The `./setOrgEnv.sh` command is designed to be run as follows.
 
-- `cadvisor:8080`
-- `node-exporter:9100`
+```bash
+export $(./setOrgEnv.sh Org2 | xargs)
+```
 
-Check the state of the connections with targets on http://localhost:9090/targets.
+(Note bash v4 is required for the scripts.)
 
-## Sources
+You will now be able to run the `peer` commands in the context of Org2. If a different command prompt, you can run the same command with Org1 instead.
+The `setOrgEnv` script outputs a series of `<name>=<value>` strings. These can then be fed into the export command for your current shell.
 
-[Prometheus docs](https://prometheus.io/docs/introduction/overview/)
-[Grafana docs](https://grafana.com/docs/)
+## Chaincode-as-a-service
+
+To learn more about how to use the improvements to the Chaincode-as-a-service please see this [tutorial](./test-network/../CHAINCODE_AS_A_SERVICE_TUTORIAL.md). It is expected that this will move to augment the tutorial in the [Hyperledger Fabric ReadTheDocs](https://hyperledger-fabric.readthedocs.io/en/release-2.4/cc_service.html)
+
+
+## Podman
+
+*Note - podman support should be considered experimental but the following has been reported to work with podman 4.1.1 on Mac. If you wish to use podman a LinuxVM is recommended.*
+
+Fabric's `install-fabric.sh` script has been enhanced to support using `podman` to pull down images and tag them rather than docker. The images are the same, just pulled differently. Simply specify the 'podman' argument when running the `install-fabric.sh` script. 
+
+Similarly, the `network.sh` script has been enhanced so that it can use `podman` and `podman-compose` instead of docker. Just set the environment variable `CONTAINER_CLI` to `podman` before running the `network.sh` script:
+
+```bash
+CONTAINER_CLI=podman ./network.sh up
+````
+
+As there is no Docker-Daemon when using podman, only the `./network.sh deployCCAAS` command will work. Following the Chaincode-as-a-service Tutorial above should work. 
+
+
