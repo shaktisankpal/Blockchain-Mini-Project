@@ -1,0 +1,4 @@
+# Shell scripts must keep LF line endings or bash fails on Windows checkouts
+# (git's core.autocrlf=true would otherwise convert them to CRLF).
+*.sh text eol=lf
+fablo text eol=lf

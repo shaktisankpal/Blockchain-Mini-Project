@@ -1,0 +1,10 @@
+/fablo-target
+/web
+/backend/config/connection-profile-*.json
+/backend/patient-wallet
+/backend/doctor-wallet
+/backend/pharmacy-wallet
+/backend/lab-wallet
+/backend/insurance-wallet
+/backend/.env
+node_modules/
