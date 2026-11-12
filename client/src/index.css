@@ -1,0 +1,144 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---------- Theme tokens (RGB channels, used by tailwind.config.js) ---------- */
+/* Dark is the default; <html class="light"> switches to the light palette.     */
+:root {
+  --ink: 11 11 12;
+  --ink-900: 15 15 16;
+  --ink-800: 20 20 22;
+  --ink-700: 26 26 29;
+  --ink-600: 35 35 39;
+  --fg: 255 255 255;
+  --n-100: 245 245 245;
+  --n-200: 229 229 229;
+  --n-300: 212 212 212;
+  --n-400: 163 163 163;
+  --n-500: 115 115 115;
+  --n-600: 82 82 82;
+  --n-700: 64 64 64;
+  --n-800: 38 38 38;
+  --n-900: 23 23 23;
+  --grid-line: rgba(255, 255, 255, 0.035);
+  --lime-text: #d4f54c;
+  --lime-text-hover: #e3fa7f;
+  color-scheme: dark;
+}
+
+html.light {
+  --ink: 246 247 243;
+  --ink-900: 239 241 234;
+  --ink-800: 255 255 255;
+  --ink-700: 244 245 240;
+  --ink-600: 232 234 226;
+  --fg: 12 12 13;
+  --n-100: 23 23 23;
+  --n-200: 38 38 38;
+  --n-300: 64 64 64;
+  --n-400: 87 87 87;
+  --n-500: 115 115 115;
+  --n-600: 163 163 163;
+  --n-700: 200 200 200;
+  --n-800: 226 226 226;
+  --n-900: 240 240 240;
+  --grid-line: rgba(0, 0, 0, 0.045);
+  /* Lime fills stay bright; lime *text* needs a deeper shade to be readable on white. */
+  --lime-text: #4d6b00;
+  --lime-text-hover: #3d5500;
+  color-scheme: light;
+}
+
+@layer base {
+  body {
+    margin: 0;
+    @apply bg-ink text-neutral-200 font-sans antialiased;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  h1, h2, h3 {
+    @apply font-display tracking-tight;
+  }
+
+  ::selection {
+    @apply bg-lime text-black;
+  }
+}
+
+@layer components {
+  /* Small uppercase eyebrow label, e.g. "BLOCKCHAIN INDEXING" */
+  .label {
+    @apply font-display text-[11px] font-semibold uppercase tracking-label text-neutral-400;
+  }
+
+  /* Lime pill button */
+  .btn-lime {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-lime px-6 py-3 font-display text-sm font-bold uppercase tracking-wider text-black transition hover:bg-lime-300 focus:outline-none focus:ring-4 focus:ring-lime/30 disabled:opacity-60;
+  }
+
+  /* High-contrast pill button (white on dark, near-black on light) */
+  .btn-light {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-3 font-display text-sm font-bold uppercase tracking-wider text-ink transition hover:bg-neutral-200 focus:outline-none focus:ring-4 focus:ring-white/20;
+  }
+
+  /* Outlined pill button */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/25 px-5 py-2 text-sm font-semibold text-white transition hover:border-white/60 hover:bg-white/5;
+  }
+
+  /* Card surface */
+  .card {
+    @apply rounded-2xl border border-white/[0.07] bg-ink-800;
+  }
+
+  /* Faint grid background */
+  .bg-grid {
+    background-image:
+      linear-gradient(var(--grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  /* Gradient number on the landing page */
+  .stat-violet {
+    background-image: linear-gradient(to right, #c4b5fd, #a5b4fc);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+/* ---------- Light-mode adjustments for accent text ---------- */
+.text-lime,
+.group:hover .group-hover\:text-lime {
+  color: var(--lime-text);
+}
+.hover\:text-lime-300:hover {
+  color: var(--lime-text-hover);
+}
+/* Text on a lime fill stays black in both themes */
+.bg-lime.text-lime,
+.group:hover .group-hover\:bg-lime {
+  color: #000;
+}
+
+html.light .text-amber-300 { color: #b45309; }
+html.light .text-red-200,
+html.light .text-red-300,
+html.light .hover\:text-red-300:hover,
+html.light .\!text-red-200 { color: #b91c1c !important; }
+html.light .text-violet-300 { color: #6d28d9; }
+html.light .stat-violet { background-image: linear-gradient(to right, #7c3aed, #4f46e5); }
+html.light .card { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px -12px rgba(0, 0, 0, 0.08); }
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
